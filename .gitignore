@@ -1,3 +1,13 @@
+# Ignorar archivos sin extensión en cualquier directorio
+*.*
+
+# Excepciones para permitir carpetas y archivos con extensión
+!*/
+!*.c
+!*.h
+!*.md
+!*.gitignore
+
 # Compiled object files
 *.o
 
