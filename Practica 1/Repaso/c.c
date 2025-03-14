@@ -28,6 +28,7 @@ int main(int argc, char *argv[]) {
     uint8_t string[N];
     convertor(number,string);
     print(string);
+    return 0;
 }
 
 void convertor(uint8_t number, uint8_t *string) {
