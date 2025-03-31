@@ -47,8 +47,8 @@ void on_led_s2(uint8_t *, uint8_t *);
 int main()
 {
     DDRD = 0xFF;  // Configuramos todos los pines del puerto D como salidas
-    DDRC = 0x02;  // Configuramos los pines 0 y 1 del puerto C como entradas
-    PORTC = 0x02; // Activamos la resistencia pull up interna de los pines 0 y 1 del puerto C
+    DDRC = 0x03;  // Configuramos los pines 0 y 1 del puerto C como entradas
+    PORTC = 0x03; // Activamos la resistencia pull up interna de los pines 0 y 1 del puerto C
     DDRB = 0x18;  // Configuramos los pines 3 y 4 del puerto B como salidas.
     uint8_t sequence = 1;
     uint8_t parity = TRUE;
@@ -56,19 +56,20 @@ int main()
     uint8_t direction = 0; // Si direction es 0 va del LSB al MSB si es 1 va del MSB al LSB
     while (TRUE)
     {
-        if ((PORTC & 1) == 0)
+        if ((PINC & 1) == 0)
         {                                      // Comprobamos si el pulsador de cambio de secuencia esta activo.
-            sequence = (sequence + 1) % 3 + 1; // Cuidado con la memoria del micro.
+            sequence = (sequence % 3) + 1;  //Una implementacion con if tiene mas cuidado en memoria, pero implica una operacion mas.
             PORTD = 0x00;
             act_bit = 0;
             direction = 0;
         }
 
-        if ((PORTC & 2) == 0)
+        if ((PINC & (1 << PC1)) == 0)
         { // Comprobamos si el pulsador de ver secuencia esta activo;
             PORTB = sequence;
         }
-        else if ((PORTC & 2) == 1)
+        
+        if ((PINC & (1 << PC1)) != 0)
         { // Comprobamos si el pulsador de ver secuencia esta inactivo;
             PORTB = 0x00;
         }
@@ -110,6 +111,7 @@ void on_led_s1(uint8_t *act_bit)
 {
     if (*act_bit <= 7)
     {
+        PORTD = 0x00;
         PORTD |= (1 << *act_bit);
         if (*act_bit == 7)
         {
@@ -117,7 +119,7 @@ void on_led_s1(uint8_t *act_bit)
         }
         else
         {
-            *act_bit++;
+            (*act_bit)++;
         }
     }
 }
@@ -126,16 +128,16 @@ void on_led_s1(uint8_t *act_bit)
 void on_led_s1(uint8_t *act_bit, uint8_t *direction)
 {
     if (!*direction)
-    {
+    {   PORTD = 0x00;
         PORTD |= (1 << *act_bit);
         if (*act_bit == 7)
         {
             *direction = 1;
-            *act_bit--;
+            (*act_bit)--;
         }
         else
         {
-            *act_bit++;
+            (*act_bit)++;
         }
     }
     else
@@ -144,11 +146,11 @@ void on_led_s1(uint8_t *act_bit, uint8_t *direction)
         if (*act_bit == 0)
         {
             *direction = 1;
-            *act_bit++;
+            (*act_bit)++;
         }
         else
         {
-            *act_bit--;
+            (*act_bit)--;
         }
     }
 }
