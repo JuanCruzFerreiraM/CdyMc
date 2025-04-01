@@ -68,7 +68,7 @@ int main()
 
         if ((PINC & (1 << PC1)) == 0)
         { // Comprobamos si el pulsador de ver secuencia esta activo;
-            PORTB = sequence & (3 << PB3);
+            PORTB = (sequence << PB3);
         }
 
         if ((PINC & (1 << PC1)) != 0)
