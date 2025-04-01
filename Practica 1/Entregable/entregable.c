@@ -57,8 +57,10 @@ int main()
     while (TRUE)
     {
         if ((PINC & 1) == 0)
-        {                                      // Comprobamos si el pulsador de cambio de secuencia esta activo.
-            sequence = (sequence % 3) + 1;  //Una implementacion con if tiene mas cuidado en memoria, pero implica una operacion mas.
+        // Comprobamos si el pulsador de cambio de secuencia esta activo.
+        {
+            _delay_ms(50);                 // Para contrarrestar el bouncing mecánico del pulsador
+            sequence = (sequence % 3) + 1; // Una implementación con if tiene mas cuidado en memoria, pero implica una operación mas.
             PORTD = 0x00;
             act_bit = 0;
             direction = 0;
@@ -66,9 +68,9 @@ int main()
 
         if ((PINC & (1 << PC1)) == 0)
         { // Comprobamos si el pulsador de ver secuencia esta activo;
-            PORTB = sequence;
+            PORTB = sequence & (3 << PB3);
         }
-        
+
         if ((PINC & (1 << PC1)) != 0)
         { // Comprobamos si el pulsador de ver secuencia esta inactivo;
             PORTB = 0x00;
@@ -128,7 +130,8 @@ void on_led_s1(uint8_t *act_bit)
 void on_led_s1(uint8_t *act_bit, uint8_t *direction)
 {
     if (!*direction)
-    {   PORTD = 0x00;
+    {
+        PORTD = 0x00;
         PORTD |= (1 << *act_bit);
         if (*act_bit == 7)
         {
