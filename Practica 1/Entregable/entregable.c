@@ -3,12 +3,13 @@
  * Autores: Cid de la Paz, Alejo-Ferreira Monteiro, Juan Cruz-Garmendia Marotz, Joaquin.
  * Materia: Circuitos Digitales y Microcontroladores
  */
+#define F_CPU 16000000UL
 #include <stdint.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #define TRUE 1
 #define FALSE 0
-#define F_CPU 16000000UL
+
 /**
  * @brief Alterna entre encender los pines pares o impares del puerto D.
  *
@@ -47,7 +48,8 @@ void on_led_s2(uint8_t *, uint8_t *);
 int main()
 {
     DDRD = 0xFF;  // Configuramos todos los pines del puerto D como salidas
-    DDRC = 0x03;  // Configuramos los pines 0 y 1 del puerto C como entradas
+    DDRC  |= (0 << PC0); // Configuramos el pin 0  del puerto C como entrada
+	DDRC  |= (0 << PC1); // Configuramos el pin 1 del puerto C como entrada
     PORTC = 0x03; // Activamos la resistencia pull up interna de los pines 0 y 1 del puerto C
     DDRB = 0x18;  // Configuramos los pines 3 y 4 del puerto B como salidas.
     uint8_t sequence = 1;
@@ -56,11 +58,13 @@ int main()
     uint8_t direction = 0; // Si direction es 0 va del LSB al MSB si es 1 va del MSB al LSB
     while (TRUE)
     {
-        if ((PINC & 1) == 0)
+        if ((PINC & (1 << PC0)) == 0)
         // Comprobamos si el pulsador de cambio de secuencia esta activo.
         {
-            _delay_ms(50);                 // Para contrarrestar el bouncing mecánico del pulsador
-            sequence = (sequence % 3) + 1; // Una implementación con if tiene mas cuidado en memoria, pero implica una operación mas.
+			while ((PINC & (1 << PC0)) == 0) {
+				_delay_ms(1);
+			}
+			sequence = (sequence % 3) + 1;
             PORTD = 0x00;
             act_bit = 0;
             direction = 0;
@@ -127,7 +131,7 @@ void on_led_s1(uint8_t *act_bit)
 }
 
 // Pensar si hay alguna forma de hacerlo sin direction
-void on_led_s1(uint8_t *act_bit, uint8_t *direction)
+void on_led_s2(uint8_t *act_bit, uint8_t *direction)
 {
     if (!*direction)
     {
@@ -145,10 +149,11 @@ void on_led_s1(uint8_t *act_bit, uint8_t *direction)
     }
     else
     {
+		PORTD = 0x00;
         PORTD |= (1 << *act_bit);
         if (*act_bit == 0)
         {
-            *direction = 1;
+            *direction = 0;
             (*act_bit)++;
         }
         else
