@@ -26,3 +26,4 @@
 # IDE specific files
 .vscode/
 .idea/
+*.rar

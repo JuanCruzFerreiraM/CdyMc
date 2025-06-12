@@ -2,23 +2,32 @@
 
 static void SEOS_SCH_Task();
 
-static uint8_t cont_mef = 0;
-
-ISR(Timer_OVF)
+ISR(TIMER0_COMPA_vect)
 {
     SEOS_SCH_Task();
 }
 
 static void SEOS_SCH_Task()
 {
-    if (++cont_mef == 5)
+    if ((++cont_mef % 5) == 0)
     {
         mef_flag = 1;
-        cont_mef = 0;
     }
 }
 
-uint8_t scheduler_init()
+void scheduler_init()
 {
-    // configuración del timer.
+    OCROA = 157;
+
+    // Modo CTC: WGM02:0 = 0b010 (WGM01 = 1, WGM00 = 0)
+    TCCR0A |= (1 << WGM01);
+    TCCR0A &= ~(1 << WGM00);
+    TCCR0B &= ~(1 << WGM02);
+
+    // Prescaler 1024: CS02:0 = 0b101
+    TCCR0B |= (1 << CS02) | (1 << CS00);
+    TCCR0B &= ~(1 << CS01);
+
+    // Habilitar interrupción por comparación con OCR0A
+    TIMSK0 |= (1 << OCIE0A);
 }

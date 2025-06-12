@@ -1,6 +1,7 @@
 #include <avr/interrupt.h>
 #include <stdint.h>
 
-volatile uint8_t mef_flag = 0;
+extern  volatile uint8_t mef_flag;
+extern  volatile uint8_t cont_mef;
 
-uint8_t scheduler_init();
+void     scheduler_init();
